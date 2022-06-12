@@ -6,7 +6,13 @@ const { loadPolicy } = require("@open-policy-agent/opa-wasm");
 class AccessControl extends Contract {
 
     async RequestAccess(ctx) {
-        let input = { message: "world" };
+        // TODO args
+        let input = {
+            "action": "read",
+            "resource": "patient_data_eve",
+            "user": "alice"
+        };
+
         const channelId = 'mychannel';
         const projectId = 'project.1234';
         const chaincode = 'PolicyExample';
@@ -20,17 +26,49 @@ class AccessControl extends Contract {
         return chaincodeResponse.payload.toString('utf8');
     }
 
-    async RetrieveSubjectAttributes(ctx, subjectId) {
-
+    async RetrieveUserAttributes(ctx, userId) {
+        // TODO
     }
 
     async RetrieveResourceAttributes(ctx, resourceId) {
-
+        // TODO
     }
 
     async AuthDecision(ctx, policyString, input) { 
         const allowed = await loadPolicy(Buffer.from(JSON.parse(policyString).binBase64, 'base64')).then((policy) => {
-            policy.setData({ world: "world" }); // TODO pass as arg
+
+             // TODO retrieve attrs from PIP
+            policy.setData({
+                "data_attributes": {
+                    "patient_data_bob": {
+                        "doctor": "alice",
+                        "legal_guardian": "john",
+                        "patient": "bob"
+                    },
+                    "patient_data_eve": {
+                        "doctor": "alice",
+                        "legal_guardian": "john",
+                        "patient": "eve"
+                    }
+                },
+                "user_attributes": {
+                    "alice": {
+                        "role": "doctor"
+                    },
+                    "bob": {
+                        "role": "patient"
+                    },
+                    "dave": {
+                        "role": "data_analyst"
+                    },
+                    "eve": {
+                        "role": "patient"
+                    },
+                    "john": {
+                        "role": "legal_guardian"
+                    }
+                }
+            });
 
             const resultSet = policy.evaluate(input);
             if (resultSet == null) {

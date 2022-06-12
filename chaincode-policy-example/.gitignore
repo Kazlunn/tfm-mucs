@@ -1,2 +1,4 @@
 /node_modules
 package-lock.json
+*.wasm
+/policy/bundle.tar.gz
