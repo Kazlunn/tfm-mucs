@@ -5,7 +5,7 @@ const sortKeysRecursive = require('sort-keys-recursive');
 const fs = require("fs");
 const { Contract } = require('fabric-contract-api');
 
-class PolicyExample extends Contract {
+class ProjectAlpha extends Contract {
 
     async initLedger(ctx) {
         // TODO use a env var for the path CHAINCODE_DIR=/usr/local/src
@@ -16,7 +16,7 @@ class PolicyExample extends Contract {
 
         const policies = [
             {
-                ID: 'project.1234',
+                ID: 'ProjectAlpha',
                 rego: policyRego.toString('utf8'),
                 binBase64: policyWasm.toString('base64')
             }
@@ -66,4 +66,4 @@ class PolicyExample extends Contract {
 
 }
 
-module.exports = PolicyExample;
+module.exports = ProjectAlpha;

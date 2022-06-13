@@ -5,21 +5,13 @@ const { loadPolicy } = require("@open-policy-agent/opa-wasm");
 
 class AccessControl extends Contract {
 
-    async requestAccess(ctx) {
-        // TODO args
-        let input = {
-            "action": "read",
-            "resource": "patient_data_eve",
-            "user": "alice"
-        };
-
+    async requestAccess(ctx, inputStr) {
         const channelId = 'mychannel';
-        const projectId = 'project.1234';
-        const chaincode = 'PolicyExample';
+        const input = JSON.parse(inputStr);
 
-        const policy = await this.retrievePolicy(ctx, chaincode, projectId, channelId);
-        const user_attributes = await this.retrieveUserAttributes(ctx, chaincode, input.user, channelId);
-        const data_attributes = await this.retrieveResourceAttributes(ctx, chaincode, input.resource, channelId);
+        const policy = await this.retrievePolicy(ctx, input.project, input.project, channelId);
+        const user_attributes = await this.retrieveUserAttributes(ctx, input.project, input.user, channelId);
+        const data_attributes = await this.retrieveResourceAttributes(ctx, input.project, input.resource, channelId);
         await this.eval(ctx, policy, input, user_attributes, data_attributes);
     }
 

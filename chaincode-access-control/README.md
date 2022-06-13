@@ -9,3 +9,6 @@
 ```console
 peer chaincode query -C mychannel -n AccessControl -c '{"Args":["requestAccess"]}'
 ```
+
+
+peer chaincode query -C mychannel -n AccessControl -c '{"Args":["requestAccess", "{\"action\":\"read\",\"resource\":\"patient_data_eve\",\"user\":\"alice\",\"project\":\"ProjectAlpha\"}"]}'

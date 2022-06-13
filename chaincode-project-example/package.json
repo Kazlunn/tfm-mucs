@@ -1,5 +1,5 @@
 {
-    "name": "chaincode-policy-example",
+    "name": "chaincode-project-example",
     "version": "1.0.0",
     "description": "Example of a CC for a Policy related to a Project",
     "main": "index.js",
