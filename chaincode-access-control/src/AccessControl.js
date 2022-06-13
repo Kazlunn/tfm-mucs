@@ -2,6 +2,8 @@
 
 const { Contract } = require('fabric-contract-api');
 const { loadPolicy } = require("@open-policy-agent/opa-wasm");
+const stringify = require('json-stringify-deterministic');
+const sortKeysRecursive = require('sort-keys-recursive');
 
 class AccessControl extends Contract {
 
@@ -46,7 +48,15 @@ class AccessControl extends Contract {
             console.log("undefined");
         }
 
-        console.log(resultSet);
+        let now = new Date().getTime();
+        await ctx.stub.putState(now.toString(), Buffer.from(stringify(sortKeysRecursive({
+            input: input,
+            user_attributes: user_attributes,
+            data_attributes: data_attributes,
+            decision: resultSet[0].result,
+            timestamp: now.toString()
+        }))));
+
         return resultSet[0].result;
     }
 
