@@ -12,7 +12,7 @@ class AccessControl extends Contract {
         const policy = await this.retrievePolicy(ctx, input.project, input.project, channelId);
         const user_attributes = await this.retrieveUserAttributes(ctx, input.project, input.user, channelId);
         const data_attributes = await this.retrieveResourceAttributes(ctx, input.project, input.resource, channelId);
-        await this.eval(ctx, policy, input, user_attributes, data_attributes);
+        return await this.eval(ctx, policy, input, user_attributes, data_attributes);
     }
 
     async retrievePolicy(ctx, chaincode, projectId, channelId) {
@@ -31,27 +31,23 @@ class AccessControl extends Contract {
     }
 
     async eval(ctx, policyString, input, user_attributes, data_attributes) { 
-        const allowed = await loadPolicy(Buffer.from(JSON.parse(policyString).binBase64, 'base64')).then((policy) => {
+        const policy = await loadPolicy(Buffer.from(JSON.parse(policyString).binBase64, 'base64'));
 
-            policy.setData({
-                "data_attributes": JSON.parse(data_attributes),
-                "user_attributes": JSON.parse(user_attributes)
-            });
-
-            const resultSet = policy.evaluate(input);
-            if (resultSet == null) {
-                console.error("evaluation error");
-            }
-            if (resultSet.length == 0) {
-                console.log("undefined");
-            }
-            console.log(resultSet);
-            return resultSet;
-        }).catch((error) => {
-            console.error("Failed to load policy: ", error);
+        policy.setData({
+            "data_attributes": JSON.parse(data_attributes),
+            "user_attributes": JSON.parse(user_attributes)
         });
 
-        return allowed;
+        const resultSet = policy.evaluate(input);
+        if (resultSet == null) {
+            console.error("evaluation error");
+        }
+        if (resultSet.length == 0) {
+            console.log("undefined");
+        }
+
+        console.log(resultSet);
+        return resultSet[0].result;
     }
 
 }
