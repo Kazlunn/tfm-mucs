@@ -1,3 +1,3 @@
 ```console
-./network.sh up createChannel
+./network.sh up createChannel -ca -s couchdb
 ```

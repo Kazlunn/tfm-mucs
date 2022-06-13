@@ -1,0 +1,12 @@
+{
+    "patient_data_bob": {
+        "doctor": "alice",
+        "legal_guardian": "john",
+        "patient": "bob"
+    },
+    "patient_data_eve": {
+        "doctor": "alice",
+        "legal_guardian": "john",
+        "patient": "eve"
+    }
+}

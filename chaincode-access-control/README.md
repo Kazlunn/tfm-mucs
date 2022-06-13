@@ -7,5 +7,5 @@
 
 ## Petición de acceso
 ```console
-peer chaincode query -C mychannel -n AccessControl -c '{"Args":["RequestAccess"]}'
+peer chaincode query -C mychannel -n AccessControl -c '{"Args":["requestAccess"]}'
 ```

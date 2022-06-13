@@ -28,15 +28,20 @@ export CORE_PEER_ADDRESS=localhost:7051
 
 ## Inicializar la política definida en el CC
 ```console
-peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n PolicyExample --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"InitLedger","Args":[]}'
-```
-
-## Recuperar todas las políticas
-```console
-peer chaincode query -C mychannel -n PolicyExample -c '{"Args":["ReadAllPolicies"]}'
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n PolicyExample --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"initLedger","Args":[]}'
 ```
 
 ## Recuperar una política por identificador de proyecto
 ```console
-peer chaincode query -C mychannel -n PolicyExample -c '{"Args":["ReadPolicyById", "project.1234"]}'
+peer chaincode query -C mychannel -n PolicyExample -c '{"Args":["readPolicyById", "project.1234"]}'
+```
+
+## Recuperar los atributos de un usuario a partir de su identificador
+```console
+peer chaincode query -C mychannel -n PolicyExample -c '{"Args":["readUserAttributesById", "bob"]}'
+```
+
+## Recuperar los atributos de un recurso a partir de su identificador
+```console
+peer chaincode query -C mychannel -n PolicyExample -c '{"Args":["readResourceAttributesById", "patient_data_eve"]}'
 ```

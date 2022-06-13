@@ -5,7 +5,7 @@ const { loadPolicy } = require("@open-policy-agent/opa-wasm");
 
 class AccessControl extends Contract {
 
-    async RequestAccess(ctx) {
+    async requestAccess(ctx) {
         // TODO args
         let input = {
             "action": "read",
@@ -17,57 +17,33 @@ class AccessControl extends Contract {
         const projectId = 'project.1234';
         const chaincode = 'PolicyExample';
 
-        const policy = await this.RetrievePolicy(ctx, chaincode, projectId, channelId);
-        await this.AuthDecision(ctx, policy, input);
+        const policy = await this.retrievePolicy(ctx, chaincode, projectId, channelId);
+        const user_attributes = await this.retrieveUserAttributes(ctx, chaincode, input.user, channelId);
+        const data_attributes = await this.retrieveResourceAttributes(ctx, chaincode, input.resource, channelId);
+        await this.eval(ctx, policy, input, user_attributes, data_attributes);
     }
 
-    async RetrievePolicy(ctx, chaincode, projectId, channelId) {
-        const chaincodeResponse = await ctx.stub.invokeChaincode(chaincode, ['ReadPolicyById', projectId], channelId);
+    async retrievePolicy(ctx, chaincode, projectId, channelId) {
+        const chaincodeResponse = await ctx.stub.invokeChaincode(chaincode, ['readPolicyById', projectId], channelId);
         return chaincodeResponse.payload.toString('utf8');
     }
 
-    async RetrieveUserAttributes(ctx, userId) {
-        // TODO
+    async retrieveUserAttributes(ctx, chaincode, userId, channelId) {
+        const chaincodeResponse = await ctx.stub.invokeChaincode(chaincode, ['readUserAttributesById', userId], channelId);
+        return chaincodeResponse.payload.toString('utf8');
     }
 
-    async RetrieveResourceAttributes(ctx, resourceId) {
-        // TODO
+    async retrieveResourceAttributes(ctx, chaincode, resourceId, channelId) {
+        const chaincodeResponse = await ctx.stub.invokeChaincode(chaincode, ['readResourceAttributesById', resourceId], channelId);
+        return chaincodeResponse.payload.toString('utf8');
     }
 
-    async AuthDecision(ctx, policyString, input) { 
+    async eval(ctx, policyString, input, user_attributes, data_attributes) { 
         const allowed = await loadPolicy(Buffer.from(JSON.parse(policyString).binBase64, 'base64')).then((policy) => {
 
-             // TODO retrieve attrs from PIP
             policy.setData({
-                "data_attributes": {
-                    "patient_data_bob": {
-                        "doctor": "alice",
-                        "legal_guardian": "john",
-                        "patient": "bob"
-                    },
-                    "patient_data_eve": {
-                        "doctor": "alice",
-                        "legal_guardian": "john",
-                        "patient": "eve"
-                    }
-                },
-                "user_attributes": {
-                    "alice": {
-                        "role": "doctor"
-                    },
-                    "bob": {
-                        "role": "patient"
-                    },
-                    "dave": {
-                        "role": "data_analyst"
-                    },
-                    "eve": {
-                        "role": "patient"
-                    },
-                    "john": {
-                        "role": "legal_guardian"
-                    }
-                }
+                "data_attributes": JSON.parse(data_attributes),
+                "user_attributes": JSON.parse(user_attributes)
             });
 
             const resultSet = policy.evaluate(input);

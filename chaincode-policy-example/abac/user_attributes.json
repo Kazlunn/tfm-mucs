@@ -1,0 +1,17 @@
+{
+    "alice": {
+        "role": "doctor"
+    },
+    "bob": {
+        "role": "patient"
+    },
+    "dave": {
+        "role": "data_analyst"
+    },
+    "eve": {
+        "role": "patient"
+    },
+    "john": {
+        "role": "legal_guardian"
+    }
+}

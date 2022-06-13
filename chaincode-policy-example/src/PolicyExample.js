@@ -7,10 +7,12 @@ const { Contract } = require('fabric-contract-api');
 
 class PolicyExample extends Contract {
 
-    async InitLedger(ctx) {
+    async initLedger(ctx) {
         // TODO use a env var for the path CHAINCODE_DIR=/usr/local/src
         const policyRego = fs.readFileSync("/usr/local/src/policy/policy.rego");
         const policyWasm = fs.readFileSync("/usr/local/src/policy/policy.wasm");
+        const data_attributes = JSON.parse(fs.readFileSync("/usr/local/src/abac/data_attributes.json"));
+        const user_attributes = JSON.parse(fs.readFileSync("/usr/local/src/abac/user_attributes.json"));
 
         const policies = [
             {
@@ -24,9 +26,17 @@ class PolicyExample extends Contract {
             policy.docType = 'policy';
             await ctx.stub.putState(policy.ID, Buffer.from(stringify(sortKeysRecursive(policy))));
         }
+
+        for (const userId of Object.keys(user_attributes)) {
+            await ctx.stub.putState("user_attributes_" + userId, Buffer.from(stringify(user_attributes[userId])));
+        }
+
+        for (const resourceId of Object.keys(data_attributes)) {
+            await ctx.stub.putState("data_attributes_" + resourceId, Buffer.from(stringify(data_attributes[resourceId])));
+        }
     }
 
-    async ReadPolicyById(ctx, id) {
+    async readPolicyById(ctx, id) {
         const policyJSON = await ctx.stub.getState(id);
         if (!policyJSON || policyJSON.length === 0) {
             throw new Error(`The policy ${id} does not exist`);
@@ -34,23 +44,24 @@ class PolicyExample extends Contract {
         return policyJSON.toString();
     }
 
-    async ReadAllPolicies(ctx) {
-        const allResults = [];
-        const iterator = await ctx.stub.getStateByRange('', '');
-        let result = await iterator.next();
-        while (!result.done) {
-            const strValue = Buffer.from(result.value.value.toString()).toString('utf8');
-            let record;
-            try {
-                record = JSON.parse(strValue);
-            } catch (err) {
-                console.log(err);
-                record = strValue;
-            }
-            allResults.push(record);
-            result = await iterator.next();
+    async readUserAttributesById(ctx, id) {
+        const userAttributes = await ctx.stub.getState("user_attributes_" + id);
+        if (!userAttributes || userAttributes.length === 0) {
+            throw new Error(`The user with id ${id} does not exist`);
         }
-        return JSON.stringify(allResults);
+        let result = {};
+        result[id] = JSON.parse(userAttributes.toString());
+        return JSON.stringify(result);
+    }
+
+    async readResourceAttributesById(ctx, id) {
+        const resourceAttributes = await ctx.stub.getState("data_attributes_" + id);
+        if (!resourceAttributes || resourceAttributes.length === 0) {
+            throw new Error(`The data with id ${id} does not exist`);
+        }
+        let result = {};
+        result[id] = JSON.parse(resourceAttributes.toString());
+        return JSON.stringify(result);
     }
 
 }
