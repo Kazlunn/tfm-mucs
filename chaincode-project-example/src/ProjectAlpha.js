@@ -2,17 +2,17 @@
 
 const stringify = require('json-stringify-deterministic');
 const sortKeysRecursive = require('sort-keys-recursive');
-const fs = require("fs");
+const fs = require('fs');
 const { Contract } = require('fabric-contract-api');
+require('dotenv').config();
 
 class ProjectAlpha extends Contract {
 
     async initLedger(ctx) {
-        // TODO use a env var for the path CHAINCODE_DIR=/usr/local/src
-        const policyRego = fs.readFileSync("/usr/local/src/policy/policy.rego");
-        const policyWasm = fs.readFileSync("/usr/local/src/policy/policy.wasm");
-        const data_attributes = JSON.parse(fs.readFileSync("/usr/local/src/abac/data_attributes.json"));
-        const user_attributes = JSON.parse(fs.readFileSync("/usr/local/src/abac/user_attributes.json"));
+        const policyRego = fs.readFileSync(process.env.CHAINCODE_DIR + '/policy/policy.rego');
+        const policyWasm = fs.readFileSync(process.env.CHAINCODE_DIR + '/policy/policy.wasm');
+        const data_attributes = JSON.parse(fs.readFileSync(process.env.CHAINCODE_DIR + '/abac/data_attributes.json'));
+        const user_attributes = JSON.parse(fs.readFileSync(process.env.CHAINCODE_DIR + '/abac/user_attributes.json'));
 
         const policies = [
             {
@@ -20,7 +20,7 @@ class ProjectAlpha extends Contract {
                 rego: policyRego.toString('utf8'),
                 binBase64: policyWasm.toString('base64')
             }
-        ]
+        ];
 
         for (const policy of policies) {
             policy.docType = 'policy';
@@ -28,11 +28,11 @@ class ProjectAlpha extends Contract {
         }
 
         for (const userId of Object.keys(user_attributes)) {
-            await ctx.stub.putState("user_attributes_" + userId, Buffer.from(stringify(user_attributes[userId])));
+            await ctx.stub.putState('user_attributes_' + userId, Buffer.from(stringify(user_attributes[userId])));
         }
 
         for (const resourceId of Object.keys(data_attributes)) {
-            await ctx.stub.putState("data_attributes_" + resourceId, Buffer.from(stringify(data_attributes[resourceId])));
+            await ctx.stub.putState('data_attributes_' + resourceId, Buffer.from(stringify(data_attributes[resourceId])));
         }
     }
 
@@ -45,7 +45,7 @@ class ProjectAlpha extends Contract {
     }
 
     async readUserAttributesById(ctx, id) {
-        const userAttributes = await ctx.stub.getState("user_attributes_" + id);
+        const userAttributes = await ctx.stub.getState('user_attributes_' + id);
         if (!userAttributes || userAttributes.length === 0) {
             throw new Error(`The user with id ${id} does not exist`);
         }
@@ -55,7 +55,7 @@ class ProjectAlpha extends Contract {
     }
 
     async readResourceAttributesById(ctx, id) {
-        const resourceAttributes = await ctx.stub.getState("data_attributes_" + id);
+        const resourceAttributes = await ctx.stub.getState('data_attributes_' + id);
         if (!resourceAttributes || resourceAttributes.length === 0) {
             throw new Error(`The data with id ${id} does not exist`);
         }

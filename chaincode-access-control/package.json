@@ -18,6 +18,7 @@
     "license": "Apache-2.0",
     "dependencies": {
         "@open-policy-agent/opa-wasm": "^1.7.0",
+        "dotenv": "^16.0.1",
         "fabric-contract-api": "^2.0.0",
         "fabric-shim": "^2.0.0",
         "json-stringify-deterministic": "^1.0.1",

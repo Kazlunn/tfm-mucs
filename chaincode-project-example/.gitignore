@@ -2,3 +2,5 @@
 package-lock.json
 *.wasm
 /policy/bundle.tar.gz
+/coverage
+/.nyc_output

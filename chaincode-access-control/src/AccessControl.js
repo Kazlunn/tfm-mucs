@@ -1,7 +1,7 @@
 'use strict';
 
 const { Contract } = require('fabric-contract-api');
-const { loadPolicy } = require("@open-policy-agent/opa-wasm");
+const { loadPolicy } = require('@open-policy-agent/opa-wasm');
 const stringify = require('json-stringify-deterministic');
 const sortKeysRecursive = require('sort-keys-recursive');
 
@@ -32,20 +32,20 @@ class AccessControl extends Contract {
         return chaincodeResponse.payload.toString('utf8');
     }
 
-    async eval(ctx, policyString, input, user_attributes, data_attributes) { 
+    async eval(ctx, policyString, input, user_attributes, data_attributes) {
         const policy = await loadPolicy(Buffer.from(JSON.parse(policyString).binBase64, 'base64'));
 
         policy.setData({
-            "data_attributes": JSON.parse(data_attributes),
-            "user_attributes": JSON.parse(user_attributes)
+            data_attributes: JSON.parse(data_attributes),
+            user_attributes: JSON.parse(user_attributes)
         });
 
         const resultSet = policy.evaluate(input);
-        if (resultSet == null) {
-            console.error("evaluation error");
+        if (resultSet === null) {
+            throw new Error('evaluation error');
         }
-        if (resultSet.length == 0) {
-            console.log("undefined");
+        if (resultSet.length === 0) {
+            throw new Error('undefined');
         }
 
         let now = new Date().getTime();
